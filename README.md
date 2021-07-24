@@ -1,41 +1,110 @@
-# Blockchain Commons `$projectname`
+# Blockchain Commons `mori-cli`
 
 <!--Guidelines: https://github.com/BlockchainCommons/secure-template/wiki -->
 
-### _by $major-authors_
+### _by [Francisco Calderón](https://github.com/grunch)_
 
-**`$ProjectDescription`** is …
+Death is something uncomfortable, usually our death is not something we want to talk about, much less in our youth, but as Bitcoiners we have to prepare our funds for that day that will inevitably come.
 
-## Additional Information
+This project proposes a way that a btc owner can leave his bitcoins to his heirs in the event of death in a decentralized way and with the least possible complication.
 
-The following files contain…
+The main characteristic of this proposal is that the heirs can recover the funds in the event of death but CANNOT access the funds while the btc owner lives.
 
-* `$ListOfEssentialDocs`
+Not knowing when we are going to die is what adds complexity to the matter.
 
-## Gordian Principles
+As a Bitcoiner and custodians of our privacy, we need to remove the trusted third party whenever possible.
 
-` $projectname` is a reference implementation meant to display the [Gordian Principles](https://github.com/BlockchainCommons/Gordian#gordian-principles), which are philosophical and technical underpinnings to Blockchain Commons' Gordian technology. This includes:
+Bitcoin script allows us to carry out a method so that the heirs cannot access while the btc owner is alive, but they will after his death.
 
-* **Independence.** `how does it demonstrate independence`
-* **Privacy.** `how does it demonstrate privacy`
-* **Resilience.** `how does it demonstrate resilience`
-* **Openness.** `how does it demonstrate openness`
+## How does this work?
+We will call the btc owner **Alice** and we will call the heir **Bob**:
 
-Blockchain Commons apps do not phone home and do not run ads. Some are available through various app stores; all are available in our code repositories for your usage.
+1. User generates two descriptors, the first one is for Alice, with this descriptor Alice will be able to generate new addresses and spend those UTXO at any moment she need. The second one is for Bob, with this descriptor he will be able to spend every UTXO from Alice after 25920 blocks being mined, this is 6 months approximately.
+2. Alicia gives to Bob his descriptor.
+3. Alice can use this wallet like any other wallet, but she has to be sure to spend every UTXO before 6 months, if she doesn't we can assume she's dead and Bob can inherit the money.
 
-`REMOVE THIS SECTION UNLESS THIS IS A REFERENCE APP MEANT TO DEMONSTRATE GORDIAN PRINCIPLES`
+**Morí** is based on [Bitcoin Dev Kit](https://github.com/bitcoindevkit/bdk) and creates descriptors from a miniscript policy, this policy have two spending conditions, **this descriptors ONLY works on BDK at this moment** but hopefully it will be working on [Bitcoin core soon](https://github.com/bitcoin/bitcoin/pull/16800) and others will follow.
 
+Condition 1: Alice can spend the funds at any time.
+Condition 2: Bob can spend the funds after N blocks have been mined.
+
+miniscript policy:
+```
+or(
+    pk(A),
+    and(
+        pk(B),
+        older(N)
+    )
+)
+
+```
 ## Status - Late Alpha
 
-` $projectname`  is currently under active development and in the late alpha testing phase. It should not be used for production tasks until it has had further testing and auditing.
+`Morí`  is currently under active development and in the late alpha testing phase. It should not be used for production tasks until it has had further testing and auditing.
+
+This first version is a stateless wallet, this means that we are regenerating it every time we run the command line.
 
 ### Roadmap
+- [x] Basic stateless wallet (connects to a electrum server)
+- [x] Add miniscripts support with CSV time-locks
+- [x] Generate main descriptors (A can spend anytime, B can spend after N blocks mined)
+- [x] Generate account addresses from descriptor main descriptor
+- [x] Add PSBT generation, signing PSBT and broadcast tx
+- [] Generate descriptors for B (can spend after N blocks mined)
+- [] Error handling
+- [] Change from stateless to stateful wallet
 
 ## Prerequisites
+Make sure you have [Rust and Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) installed.
 
 ## Installation Instructions
+```
+$ git clone https://github.com/BlockchainCommons/mori-cli.git
+$ cd mori-cli
+$ cargo build
+```
+The resulting executable is `target/debug/mori-cli`
+
+You can alternatively run and build automatically with a single command: `cargo run`.
 
 ## Usage Instructions
+We generate two descriptors, they only have a little difference, one will generate the addresses to receive and the other one for the change addresses.
+```
+$ cargo run -- descriptor
+```
+Everything before `--` are arguments we are passing to Rust's cargo tool, what is after to `--` are arguments to our program.
+
+If we want to execute the binary we can run it like this:
+```
+$ target/debug/mori-cli descriptor
+```
+We will see our receiving descriptor and our change descriptor, as we are using a stateless wallet we need to pass as arguments those descriptors as parameters everytime, so let's create two variables in a .env file.
+```
+DESC="wsh(or_d(pk([f7e6924a/87h/1h/0h]tprv8ZgxMBicQKsPdoksgNYN6yy6JxCNTGnHGEcoKwiEM6z8i4v8kZEUzp3UC5LLypQT2mrRTW4Zo4jPTsPmzjTH8MPBTNsHQvbamfxmQRrfoDk/0/*),and_v(v:pk([aab88436/87h/1h/0h]tprv8ZgxMBicQKsPeoE3PXG3hRGDVnSV7fWgnUZ8yaG9JaSQBGqzGEXUyyxj5Dkp4xxbPUZzedjBSghLsoqfuUYukbit47dbkLT3PY3oRXViJGr/0/*),older(25920))))"
+CHANGE="wsh(or_d(pk([f7e6924a/87h/1h/0h]tprv8ZgxMBicQKsPdoksgNYN6yy6JxCNTGnHGEcoKwiEM6z8i4v8kZEUzp3UC5LLypQT2mrRTW4Zo4jPTsPmzjTH8MPBTNsHQvbamfxmQRrfoDk/1/*),and_v(v:pk([aab88436/87h/1h/0h]tprv8ZgxMBicQKsPeoE3PXG3hRGDVnSV7fWgnUZ8yaG9JaSQBGqzGEXUyyxj5Dkp4xxbPUZzedjBSghLsoqfuUYukbit47dbkLT3PY3oRXViJGr/1/*),older(25920))))"
+```
+Now we bring those vars to our shell running `source .env`
+
+To receiving you need to generate a new address, for this we need to pass the descriptor and a index, it starts with 0.
+```
+cargo run -- receive --index 0 --desc $DESC
+```
+Send some btc to that address, if you don't have tBTC you can get some from this [faucet](https://bitcoinfaucet.uo1.net/).
+
+To see your balance just run
+```
+cargo run -- balance --desc $DESC --change $CHANGE
+```
+Now you want to send some coins to a other user address, for this you need to `build` a transaction.
+```
+cargo run -- build --desc $DESC --change $CHANGE --amount <amount in satoshsi> --destination <tBTC address>
+```
+We will see a [PSBT](https://github.com/bitcoin/bitcoin/blob/master/doc/psbt.md) that we need to sign and broadcast with the `send` command.
+```
+cargo run -- send --desc $DESC --psbt <psbt transaction>
+```
+That should show you a transaction Id, that means that it works 😀 Congratulations! you can die now! ⚰️🪦⚱️💀
 
 ## Origin, Authors, Copyright & Licenses
 
@@ -49,61 +118,22 @@ This table below also establishes provenance (repository of origin, permalink, a
 | --------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------ | ----------------------------------------------------------- |
 | exception-to-the-rule.c or exception-folder | [https://github.com/community/repo-name/PERMALINK](https://github.com/community/repo-name/PERMALINK) | [https://github.com/community/repo-name/commit/COMMITHASH]() | 2020 Exception Author  | [MIT](https://spdx.org/licenses/MIT)                        |
 
-### Dependencies
-
-To build  `$projectname` you'll need to use the following tools:
-
-- autotools - Gnu Build System from Free Software Foundation ([intro](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)).
-
 ### Libraries
 
-The following external libraries are used with `$projectname`:
+External libraries are listed in [Cargo.toml](./Cargo.toml).
 
-- [community/repo-name](https://github.com/community/repo-name) — What the library does (use OR fork [version] OR include [version]).
+### Derived from BDK tutorials
 
-Libraries may be marked as `use` (the current version of the library is used), `fork` (a specific version has been forked to the BCC repos for usage), or `include` (files from a specific version have been included).
+This project is derived from many tutorials but specially:
 
-### Derived from ...
+- [Building a CLI Bitcoin wallet with BDK and Rust](https://github.com/futurepaul/bdk-cli-tutorial) — Repo which is a rust descriptor wallet tutorial, by [Paul Miller](https://github.com/futurepaul) and [BDK by example](https://www.bitcoindevkit-by-example.com/).
 
-This  `$projectname` project is either derived from or was inspired by:
-
-- [community/repo-name/](https://github.com/community/repo-name) — Repo that does what, by [developer](https://github.com/developer)  or from  [community](https://community.com).
-
-## Subsequent Usage
-
-### Adapted by ...
-
-These are adaptations, conversions, and wrappers that make `$projectname` available for other languages:
-
-- [community/repo-name/](https://github.com/community/repo-name) — Repo that does what, by [developer](https://github.com/developer)  or from  [community](https://community.com)(language).
-
-### Used by ...
-
-These are other projects that directly use `$projectname`:
-
-- [community/repo-name/](https://github.com/community/repo-name) — Repo that does what, by [developer](https://github.com/developer)  or from  [community](https://community.com)(use OR fork [version] OR include [version]).
-
-Libraries may be marked as `use` (the current version of our repo is used), `fork` (a specific version of our repo has been forked for usage), or `include` (files from a specific version of our repo have been included).
-
-### Used with ...
-
-These are other projects that work with or leverage `$projectname`:
-
-- [community/repo-name/](https://github.com/community/repo-name) — Repo that does what, by [developer](https://github.com/developer)  or from  [community](https://community.com).
 
 ## Financial Support
 
-`$projectname` is a project of [Blockchain Commons](https://www.blockchaincommons.com/). We are proudly a "not-for-profit" social benefit corporation committed to open source & open development. Our work is funded entirely by donations and collaborative partnerships with people like you. Every contribution will be spent on building open tools, technologies, and techniques that sustain and advance blockchain and internet security infrastructure and promote an open web.
+`Morí` is a project of [Blockchain Commons](https://www.blockchaincommons.com/). We are proudly a "not-for-profit" social benefit corporation committed to open source & open development. Our work is funded entirely by donations and collaborative partnerships with people like you. Every contribution will be spent on building open tools, technologies, and techniques that sustain and advance blockchain and internet security infrastructure and promote an open web.
 
-To financially support further development of `$projectname` and other projects, please consider becoming a Patron of Blockchain Commons through ongoing monthly patronage as a [GitHub Sponsor](https://github.com/sponsors/BlockchainCommons). You can also support Blockchain Commons with bitcoins at our [BTCPay Server](https://btcpay.blockchaincommons.com/).
-
-### Project Sponsors
-
-Thanks to our project sponsors for their support of `$projectname`:
-
-$sponsor-logo-with-link
-
-$sponsor-description
+To financially support further development of `mori-cli` and other projects, please consider becoming a Patron of Blockchain Commons through ongoing monthly patronage as a [GitHub Sponsor](https://github.com/sponsors/BlockchainCommons). You can also support Blockchain Commons with bitcoins at our [BTCPay Server](https://btcpay.blockchaincommons.com/).
 
 ## Contributing
 
@@ -131,7 +161,7 @@ The following people directly contributed to this repository. You can add your n
 
 | Name              | Role                | Github                                            | Email                                 | GPG Fingerprint                                    |
 | ----------------- | ------------------- | ------------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
-| Christopher Allen | Principal Architect | [@ChristopherA](https://github.com/ChristopherA) | \<ChristopherA@LifeWithAlacrity.com\> | FDFE 14A5 4ECB 30FC 5D22  74EF F8D3 6C91 3574 05ED |
+| Francisco Calderón | Software engineer | [@grunch](https://github.com/grunch) | \<fjcalderon@gmail.com\> | 7178 F2F4 6986 871C F584 884C 151F 521C 8D3E 66D9 |
 
 ## Responsible Disclosure
 
