@@ -4,6 +4,8 @@
 
 ### _by [Francisco Calderón](https://github.com/grunch)_
 
+# Morí
+
 Death is something uncomfortable, usually our death is not something we want to talk about, much less in our youth, but as Bitcoiners we have to prepare our funds for that day that will inevitably come.
 
 This project proposes a way that a btc owner can leave his bitcoins to his heirs in the event of death in a decentralized way and with the least possible complication.
@@ -23,10 +25,10 @@ We will call the btc owner **Alice** and we will call the heir **Bob**:
 2. Alicia gives to Bob his descriptor.
 3. Alice can use this wallet like any other wallet, but she has to be sure to spend every UTXO before 6 months, if she doesn't we can assume she's dead and Bob can inherit the money.
 
-**Morí** is based on [Bitcoin Dev Kit](https://github.com/bitcoindevkit/bdk) and creates descriptors from a miniscript policy, this policy have two spending conditions, **this descriptors ONLY works on BDK at this moment** but hopefully it will be working on [Bitcoin core soon](https://github.com/bitcoin/bitcoin/pull/16800) and others will follow.
+**mori-cli** is based on [Bitcoin Dev Kit](https://github.com/bitcoindevkit/bdk) and creates descriptors from a miniscript policy, this policy have two spending conditions, **this descriptors ONLY works on BDK at this moment** but hopefully it will be working on [Bitcoin core soon](https://github.com/bitcoin/bitcoin/pull/16800) and others will follow.
 
-Condition 1: Alice can spend the funds at any time.
-Condition 2: Bob can spend the funds after N blocks have been mined.
+* Condition 1: Alice can spend the funds at any time.
+* Condition 2: Bob can spend the funds after N blocks have been mined.
 
 miniscript policy:
 ```
@@ -41,7 +43,7 @@ or(
 ```
 ## Status - Late Alpha
 
-`Morí`  is currently under active development and in the late alpha testing phase. It should not be used for production tasks until it has had further testing and auditing.
+`mori-cli`  is currently under active development and in the late alpha testing phase. It should not be used for production tasks until it has had further testing and auditing.
 
 This first version is a stateless wallet, this means that we are regenerating it every time we run the command line.
 
@@ -51,9 +53,9 @@ This first version is a stateless wallet, this means that we are regenerating it
 - [x] Generate main descriptors (A can spend anytime, B can spend after N blocks mined)
 - [x] Generate account addresses from descriptor main descriptor
 - [x] Add PSBT generation, signing PSBT and broadcast tx
-- [] Generate descriptors for B (can spend after N blocks mined)
-- [] Error handling
-- [] Change from stateless to stateful wallet
+- [ ] Generate descriptors for B (can spend after N blocks mined)
+- [ ] Error handling
+- [ ] Change from stateless to stateful wallet
 
 ## Prerequisites
 Make sure you have [Rust and Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) installed.
