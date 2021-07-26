@@ -163,7 +163,7 @@ The following people directly contributed to this repository. You can add your n
 
 | Name              | Role                | Github                                            | Email                                 | GPG Fingerprint                                    |
 | ----------------- | ------------------- | ------------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
-| Francisco Calderón | Software engineer | [@grunch](https://github.com/grunch) | \<fjcalderon@gmail.com\> | 7178 F2F4 6986 871C F584 884C 151F 521C 8D3E 66D9 |
+| Francisco Calderón | Software engineer | [@grunch](https://github.com/grunch) | \<calderon@protonmail.com\> | 1024 949F 02D3 FA0B 4CF5  AC05 A198 51E0 9485 13DC |
 
 ## Responsible Disclosure
 
