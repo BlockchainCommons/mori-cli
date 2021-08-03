@@ -262,7 +262,7 @@ fn execute(mode: Mode) -> Result<()> {
             tx_builder
                 .add_recipient(dest_script, amount)
                 .policy_path(path.clone(), KeychainKind::External)
-                .policy_path(path.clone(), KeychainKind::Internal);
+                .policy_path(path, KeychainKind::Internal);
 
             // "Finish" the builder which returns a tuple:
             // A `PartiallySignedTransaction` which serializes as a psbt
