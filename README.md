@@ -106,7 +106,7 @@ We will see a [PSBT](https://github.com/bitcoin/bitcoin/blob/master/doc/psbt.md)
 ```
 cargo run -- send --desc $DESC --psbt <psbt transaction>
 ```
-That should show you a transaction Id, that means that it works 😀 Congratulations! you can die now! ⚰️🪦⚱️💀
+That should show you a transaction Id, that means that it works 😀 Congratulations! you can die now! ⚰️⚱️💀
 
 ## Origin, Authors, Copyright & Licenses
 
