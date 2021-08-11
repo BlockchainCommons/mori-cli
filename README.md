@@ -4,6 +4,8 @@
 
 ### _by [Francisco Calderón](https://github.com/grunch)_
 
+* <img src="https://github.com/BlockchainCommons/Gordian/blob/master/Images/logos/gordian-icon.png" width=16 valign="bottom"> ***part of the [gordian](https://github.com/BlockchainCommons/gordian/blob/master/README.md) technology family***
+
 # Morí
 
 Death is something uncomfortable, usually our death is not something we want to talk about, much less in our youth, but as Bitcoiners we have to prepare our funds for that day that will inevitably come.
