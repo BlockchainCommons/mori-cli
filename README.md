@@ -24,7 +24,7 @@ Bitcoin script allows us to carry out a method so that the heirs cannot access w
 We will call the btc owner **Alice** and we will call the heir **Bob**:
 
 1. User generates two descriptors, the first one is for Alice, with this descriptor Alice will be able to generate new addresses and spend those UTXO at any moment she need. The second one is for Bob, with this descriptor he will be able to spend every UTXO from Alice after 25920 blocks being mined, this is 6 months approximately.
-2. Alicia gives to Bob his descriptor.
+2. Alice gives to Bob his descriptor.
 3. Alice can use this wallet like any other wallet, but she has to be sure to spend/sweep/rotate every UTXO before 6 months, if she doesn't we can assume she's dead and Bob can inherit the money.
 
 **mori-cli** is based on [Bitcoin Dev Kit](https://github.com/bitcoindevkit/bdk) and creates descriptors from a miniscript policy, this policy have two spending conditions, **this descriptors ONLY works on BDK at this moment** but hopefully it will be working on [Bitcoin core soon](https://github.com/bitcoin/bitcoin/pull/16800) and others will follow.
